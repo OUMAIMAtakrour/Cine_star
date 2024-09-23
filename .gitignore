@@ -1,0 +1,15 @@
+# Node.js
+node_modules/
+package-lock.json
+
+# Docker
+*.log
+*.pid
+*.swp
+
+# Environment files
+.env
+/database
+
+# Docker-related
+docker-compose.override.yml
