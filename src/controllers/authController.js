@@ -1,24 +1,24 @@
-const authService = require('../services/authService');
+const AuthService = require('../services/authService');
 
 class AuthController {
-  async register(req, res) {
+  static async register(req, res, next) {
     try {
-      const newUser = await authService.register(req.body);
-      return res.status(201).json(newUser);
+      const user = await AuthService.register(req.body);
+      res.status(201).json(user);
     } catch (error) {
-      return res.status(400).json({ error: error.message });
+      next(error);
     }
   }
 
-  async login(req, res) {
+  static async login(req, res, next) {
     try {
       const { email, password } = req.body;
-      const { token, user } = await authService.login(email, password);
-      return res.status(200).json({ token, user });
+      const result = await AuthService.login(email, password);
+      res.json(result);
     } catch (error) {
-      return res.status(400).json({ error: error.message });
+      next(error);
     }
   }
 }
 
-module.exports = new AuthController();
+module.exports = AuthController;

@@ -1,38 +1,35 @@
-const jwt = require("jsonwebtoken");
-const { SECRET_KEY } = require("../config/jwt");
-const userDAO = require("../dao/userDao");
-const adminDAO = require("../dao/adminDao");
-const clientDAO = require("../dao/clientDao");
+const jwt = require('jsonwebtoken');
+const { SECRET_KEY } = require('../config/jwt');
+const User = require('../models/User');
+const Admin = require('../models/Admin');
 
 const authMiddleware = async (req, res, next) => {
   try {
-    const token = req.header("Authorization")?.replace("Bearer ", "");
+    const token = req.header('Authorization')?.replace('Bearer ', '');
 
     if (!token) {
-      throw new Error();
+      return res.status(401).json({ message: 'No token, authorization denied' });
     }
 
     const decoded = jwt.verify(token, SECRET_KEY);
-    const user = await userDAO.findById(decoded.userId);
+    const user = await User.findOne({ _id: decoded.userId });
 
     if (!user) {
-      throw new Error();
+      return res.status(401).json({ message: 'User not found' });
+    }
+
+    if (user.role === 'admin') {
+      const admin = await Admin.findOne({ user: user._id });
+      if (!admin) {
+        return res.status(401).json({ message: 'Admin data not found' });
+      }
+      user.adminData = admin;
     }
 
     req.user = user;
-    req.token = token;
-
-    if (user.role === "admin") {
-      const adminData = await adminDAO.findByUserId(user._id);
-      req.user.adminData = adminData;
-    } else if (user.role === "client") {
-      const clientData = await clientDAO.findByUserId(user._id);
-      req.user.clientData = clientData;
-    }
-
     next();
   } catch (error) {
-    res.status(401).json({ error: "Please authenticate." });
+    res.status(401).json({ message: 'Token is not valid' });
   }
 };
 

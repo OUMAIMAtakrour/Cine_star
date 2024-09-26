@@ -1,9 +1,9 @@
 class AuthInterface {
-  async findUserByEmail(email) {
+  async login(email, password) {
     throw new Error("Method not implemented");
   }
 
-  async createUser(userData) {
+  async register(userData) {
     throw new Error("Method not implemented");
   }
 }
