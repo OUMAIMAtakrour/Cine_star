@@ -1,5 +1,5 @@
 const ReservationService = require("../services/reservationService");
-
+const emailService = require("../services/emailService");
 class ReservationController {
   constructor(reservationService) {
     this.reservationService = reservationService;
@@ -12,12 +12,17 @@ class ReservationController {
       }
 
       const reservation = await this.reservationService.store(req);
+
+      await emailService.sendConfirmationEmail(
+        req.body.clientEmail,
+        reservation
+      ); 
+
       res.status(201).json(reservation);
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
   }
-
   async destroy(req, res) {
     try {
       await this.reservationService.destroy(req);
