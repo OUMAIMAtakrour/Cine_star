@@ -2,11 +2,11 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { SECRET_KEY, TOKEN_EXPIRATION } = require("../config/jwt");
 const AuthRepository = require("../repositories/implementations/authRepository");
-const AuthInterface = require("../repositories/interfaces/authInterface");
+// const AuthInterface = require("../repositories/interfaces/authInterface");
 
-class AuthService extends AuthInterface {
+class AuthService {
   constructor(authRepository) {
-    super();
+    // super();
     this.authRepository = authRepository;
   }
 
@@ -40,13 +40,19 @@ class AuthService extends AuthInterface {
       password: hashedPassword,
     });
 
-    if (userData.role === 'client') {
-      const client = await this.authRepository.createClient({ user: newUser._id, ...userData });
+    if (userData.role === "client") {
+      const client = await this.authRepository.createClient({
+        user: newUser._id,
+        ...userData,
+      });
       return { ...newUser, clientData: client };
     }
 
-    if (userData.role === 'admin') {
-      const admin = await this.authRepository.createAdmin({ user: newUser._id, ...userData });
+    if (userData.role === "admin") {
+      const admin = await this.authRepository.createAdmin({
+        user: newUser._id,
+        ...userData,
+      });
       return { ...newUser, adminData: admin };
     }
 

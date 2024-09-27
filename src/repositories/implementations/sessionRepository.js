@@ -71,7 +71,7 @@ class SessionRepository extends SessionInterface {
 
     if (!id) {
       throw new Error("Session ID is required");
-    }
+    }   
 
     const sessionData = {
       film_id,
