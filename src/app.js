@@ -4,6 +4,8 @@ const path = require("path");
 // const authRepository = require("./repositories/implementations/authRepository");
 const authRoutes = require("./routes/authRoutes");
 const filmRoutes = require("./routes/filmRoutes");
+const roomRoutes = require("./routes/roomRoutes");
+const sessionRoutes = require("./routes/sessionRoutes");
 const db = require("../src/config/database");
 const app = express();
 const port = process.env.PORT || 3000;
@@ -19,3 +21,5 @@ app.get("/", (req, res) => {
 });
 app.use("/auth", authRoutes);
 app.use("/film", filmRoutes);
+app.use("/room", roomRoutes);
+app.use("/session", sessionRoutes);
