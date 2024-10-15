@@ -15,23 +15,21 @@ class SessionRepository extends SessionInterface {
   }
   async store(sessionData) {
     const { film_id, room_id, hour, date } = sessionData.body;
-   
-    if (!sessionData.user || !sessionData.user._id ) {
+
+    if (!sessionData.user || !sessionData.user._id) {
       throw new Error("Admin not authenticated or admin data missing");
     }
 
-
     const user_id = sessionData.user._id;
-   
 
     const room = await this.roomDao.show(room_id);
     if (!room) {
-      throw new Error('Room not found');
+      throw new Error("Room not found");
     }
 
     const seats = Array.from({ length: room.capacity }, (_, index) => ({
       seat_number: index + 1,
-      status: 'Available'
+      status: "Available",
     }));
 
     const sessionObj = new SessionModel(
@@ -42,7 +40,6 @@ class SessionRepository extends SessionInterface {
       hour,
       new Date(date),
       seats
-     
     );
 
     const session = {
@@ -51,7 +48,7 @@ class SessionRepository extends SessionInterface {
       user_id: sessionObj.getUserId(),
       hour: sessionObj.getHour(),
       date: sessionObj.getDate(),
-      seats: sessionObj.getSeats()
+      seats: sessionObj.getSeats(),
     };
 
     return await this.sessionDao.save(session);
@@ -77,13 +74,13 @@ class SessionRepository extends SessionInterface {
 
   async update(req) {
     const { id } = req.params;
-    const { film_id, room_id, hour, date } = req.body;
+    const { film_id, room_id, hour, date, seats } = req.body;
 
-    if (!req.user || !req.user.adminData || !req.user.adminData._id) {
+    if (!req.user || !req.user._id) {
       throw new Error("Admin not authenticated or admin data missing");
     }
 
-    const admin_id = req.user.adminData._id;
+    const admin_id = req.user._id;
 
     if (!id) {
       throw new Error("Session ID is required");
@@ -95,8 +92,8 @@ class SessionRepository extends SessionInterface {
       room_id,
       admin_id,
       hour,
-      null,  
-      new Date(date)
+      new Date(date),
+      seats
     );
 
     return await this.sessionDao.update(id, sessionData);

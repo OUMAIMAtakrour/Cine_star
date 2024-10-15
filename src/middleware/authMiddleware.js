@@ -18,13 +18,7 @@ const authMiddleware = async (req, res, next) => {
       return res.status(401).json({ message: 'User not found' });
     }
 
-    if (user.role === 'admin') {
-      const admin = await Admin.findOne({ user: user._id });
-      if (!admin) {
-        return res.status(401).json({ message: 'Admin data not found' });
-      }
-      user.adminData = admin;
-    }
+   
 
     req.user = user;
     next();
