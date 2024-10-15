@@ -14,9 +14,9 @@ const sessionSchema = new mongoose.Schema(
       ref: "Room",
       required: true,
     },
-    admin_id: {
+    user_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Admin",
+      ref: "User",
       required: true,
     },
     hour: {
@@ -28,7 +28,19 @@ const sessionSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    seats: [
+      {
+        row: String,
+        number: Number,
+        status: {
+          type: String,
+          enum: ["Available", "Reserved"],
+          default: "Available",
+        },
+      },
+    ],
   },
+
   { collection: "sessions" }
 );
 

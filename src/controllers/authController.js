@@ -1,7 +1,7 @@
-const AuthService = require('../services/authService');
+const AuthService = require("../services/authService");
 
 class AuthController {
-  static async register(req, res, next) {
+  async register(req, res, next) {
     try {
       const user = await AuthService.register(req.body);
       res.status(201).json(user);
@@ -10,15 +10,17 @@ class AuthController {
     }
   }
 
-  static async login(req, res, next) {
-    try {
-      const { email, password } = req.body;
-      const result = await AuthService.login(email, password);
-      res.json(result);
-    } catch (error) {
-      next(error);
-    }
+  login(req, res, next) {
+    const { email, password } = req.body;
+    AuthService.login(email, password)
+      .then((result) => {
+        res.json(result);
+      })
+
+      .catch((error) => {
+        next(error);
+      });
   }
 }
 
-module.exports = AuthController;
+module.exports = new AuthController();

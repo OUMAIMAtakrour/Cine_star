@@ -15,7 +15,7 @@ const reservationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Session",
     required: true
-  }
+  },
 }, { collection: "reservations" });
 
 const Reservation = mongoose.model("Reservation", reservationSchema);

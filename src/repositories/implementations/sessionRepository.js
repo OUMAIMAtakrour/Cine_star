@@ -1,41 +1,57 @@
 const SessionInterface = require("../interfaces/sessionInterface");
 const SessionModel = require("../../models/session");
 const SessionDao = require("../../dao/sessionDao");
+const RoomDao = require("../../dao/roomDao");
 
 class SessionRepository extends SessionInterface {
   constructor() {
     super();
     this.sessionDao = new SessionDao();
+    this.roomDao = new RoomDao();
   }
 
   index() {
     return this.sessionDao.index();
   }
-
-  async store(req) {
-    const { film_id, room_id, hour, date } = req.body;
-
-    if (!req.user || !req.user.adminData || !req.user.adminData._id) {
+  async store(sessionData) {
+    const { film_id, room_id, hour, date } = sessionData.body;
+   
+    if (!sessionData.user || !sessionData.user._id ) {
       throw new Error("Admin not authenticated or admin data missing");
     }
 
-    const admin_id = req.user.adminData._id;
+
+    const user_id = sessionData.user._id;
+   
+
+    const room = await this.roomDao.show(room_id);
+    if (!room) {
+      throw new Error('Room not found');
+    }
+
+    const seats = Array.from({ length: room.capacity }, (_, index) => ({
+      seat_number: index + 1,
+      status: 'Available'
+    }));
 
     const sessionObj = new SessionModel(
       null,
       film_id,
       room_id,
-      admin_id,
+      user_id,
       hour,
-      new Date(date)
+      new Date(date),
+      seats
+     
     );
 
     const session = {
       film_id: sessionObj.getFilmId(),
       room_id: sessionObj.getRoomId(),
-      admin_id: sessionObj.getAdminId(),
+      user_id: sessionObj.getUserId(),
       hour: sessionObj.getHour(),
       date: sessionObj.getDate(),
+      seats: sessionObj.getSeats()
     };
 
     return await this.sessionDao.save(session);
@@ -50,13 +66,13 @@ class SessionRepository extends SessionInterface {
     return await this.sessionDao.delete(id);
   }
 
-  show(req) {
+  async show(req) {
     const { id } = req.params;
     if (!id) {
       throw new Error("Session ID is required");
     }
 
-    return this.sessionDao.show(id);
+    return await this.sessionDao.show(id);
   }
 
   async update(req) {
@@ -71,15 +87,17 @@ class SessionRepository extends SessionInterface {
 
     if (!id) {
       throw new Error("Session ID is required");
-    }   
+    }
 
-    const sessionData = {
+    const sessionData = new SessionModel(
+      id,
       film_id,
       room_id,
       admin_id,
       hour,
-      date: new Date(date),
-    };
+      null,  
+      new Date(date)
+    );
 
     return await this.sessionDao.update(id, sessionData);
   }

@@ -67,6 +67,44 @@ class FilmRepository extends FilmInterface {
 
     return await this.filmDao.update(id, filmData);
   }
+  
+  async getFilmWithSessions(req) {
+    try {
+        const { id } = req.params;
+        const { date, startTime, endTime } = req.query;
+        
+        if (!id) {
+            throw new Error("Film ID is required");
+        }
+
+        const filter = {};
+
+        // Add date filter if provided
+        if (date) {
+            const filterDate = new Date(date);
+            filterDate.setHours(0, 0, 0, 0);
+            filter.date = filterDate;
+        }
+
+        // Add time range filter if provided
+        if (startTime && endTime) {
+            filter.hour = {
+                $gte: startTime,
+                $lte: endTime
+            };
+        }
+
+        const film = await this.filmDao.getFilmWithSessions(id, filter);
+        
+        if (!film) {
+            throw new Error("Film not found");
+        }
+
+        return film;
+    } catch (error) {
+        throw new Error(`Error fetching film with sessions: ${error.message}`);
+    }
+}
 }
 
 module.exports = FilmRepository;

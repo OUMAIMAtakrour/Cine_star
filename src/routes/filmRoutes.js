@@ -10,12 +10,8 @@ router.post(
   roleMiddleware(["admin"]),
   filmController.store.bind(filmController)
 );
-router.get(
-  "/",
-  authMiddleware,
-  roleMiddleware(["admin"]),
-  filmController.index.bind(filmController)
-);
+router.get("/", authMiddleware, filmController.index.bind(filmController));
+router.get('/:id/sessions', filmController.getFilmWithSessions.bind(filmController));
 router.get("/:id", filmController.show.bind(filmController));
 router.put(
   "/:id",

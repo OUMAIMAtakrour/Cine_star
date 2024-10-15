@@ -10,9 +10,9 @@ const roomSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    admin_id: {
+    user_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Admin",
+      ref: "User",
       required: true,
     },
   },

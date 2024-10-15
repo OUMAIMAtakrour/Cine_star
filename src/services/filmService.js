@@ -1,12 +1,12 @@
 const FilmRepository = require("../repositories/implementations/filmRepository");
 class FilmService {
-    constructor() {
-        this.filmRepository = new FilmRepository();
-      }
-    
-      async store(req) {
-        return this.filmRepository.store(req);
-      }
+  constructor() {
+    this.filmRepository = new FilmRepository();
+  }
+
+  async store(data) {
+    return this.filmRepository.store(data);
+  }
   destroy(req) {
     return this.filmRepository.destroy(req);
   }
@@ -21,6 +21,10 @@ class FilmService {
 
   update(req) {
     return this.filmRepository.update(req);
+  }
+
+  async getFilmWithSessions(req) {
+    return this.filmRepository.getFilmWithSessions(req);
   }
 }
 module.exports = FilmService;

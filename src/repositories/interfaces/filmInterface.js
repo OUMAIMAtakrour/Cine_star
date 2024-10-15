@@ -26,5 +26,8 @@ class FilmInterface{
     update(req){
         throw new Error('Must be Implemented!!');
     }
+    getFilmWithSessions(req) {
+        throw new Error('Must be Implemented!!');
+    }
 }
 module.exports = FilmInterface;
