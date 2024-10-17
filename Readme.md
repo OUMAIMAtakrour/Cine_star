@@ -107,7 +107,7 @@ CINE_STAR
 
 1. Clone the repository:
    ```bash
-   git clone <repo-url>
+   git clone <https://github.com/OUMAIMAtakrour/Cine_star.git>
    cd cine_star
    ```
 
@@ -149,5 +149,5 @@ The project is containerized using the  `Dockerfile`:
 
 To run unit tests:
 ```bash
-npm run test
+npm test
 ```
