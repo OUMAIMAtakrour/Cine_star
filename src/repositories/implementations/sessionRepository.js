@@ -72,15 +72,15 @@ class SessionRepository extends SessionInterface {
     return await this.sessionDao.show(id);
   }
 
-  async update(req) {
-    const { id } = req.params;
-    const { film_id, room_id, hour, date, seats } = req.body;
+  async update(updatedSession) {
+    const { id } = updatedSession.params;
+    const { film_id, room_id, hour, date, seats } = updatedSession.body;
 
-    if (!req.user || !req.user._id) {
+    if (!updatedSession.user || !updatedSession.user._id) {
       throw new Error("Admin not authenticated or admin data missing");
     }
 
-    const admin_id = req.user._id;
+    const admin_id = updatedSession.user._id;
 
     if (!id) {
       throw new Error("Session ID is required");

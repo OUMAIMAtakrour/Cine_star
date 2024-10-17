@@ -4,8 +4,8 @@ class FilmService {
     this.filmRepository = new FilmRepository();
   }
 
-  async store(data) {
-    return this.filmRepository.store(data);
+  store(filmFields, user_id, image) {
+    return this.filmRepository.store(filmFields, user_id, image);
   }
   destroy(req) {
     return this.filmRepository.destroy(req);

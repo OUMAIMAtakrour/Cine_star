@@ -7,7 +7,7 @@ class FilmInterface{
     }
 
 
-    store(req){
+    store(filmFields, user_id, image){
         throw new Error('Must be Implemented!!');
     }
 

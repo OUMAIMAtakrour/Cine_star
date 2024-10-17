@@ -12,21 +12,19 @@ class FilmRepository extends FilmInterface {
     return this.filmDao.index();
   }
 
-  async store(req) {
-    const { name, duration } = req.body;
-    
-    if (!req.user || !req.user.adminData || !req.user.adminData._id) {
-      throw new Error("Admin not authenticated or admin data missing");
-    }
-    
-    const admin_id = req.user.adminData._id;
+  async store(filmFields, user_id, image) {
+    const { name, duration } = filmFields;
+    const _image = image;
 
-    const filmObj = new FilmModel(null, name, duration, admin_id);
+    const _user_id = user_id;
+
+    new FilmModel(name, duration, _user_id, _image);
 
     const film = {
-      name: filmObj.getName(),
-      duration: filmObj.getDuration(),
-      admin_id: filmObj.getAdminId(),
+      name: name,
+      duration: duration,
+      user_id: _user_id,
+      image_path: _image,
     };
 
     return await this.filmDao.save(film);
@@ -50,61 +48,59 @@ class FilmRepository extends FilmInterface {
     return this.filmDao.show(id);
   }
 
-  async update(req) {
-    const { id } = req.params;
-    const { name, duration } = req.body;
-    const admin_id = req.user.adminData._id; 
+  // async update(req) {
+  //   const { id } = req.params;
+  //   const { name, duration } = req.body;
+  //   const admin_id = req.user.adminData._id;
 
-    if (!id) {
-      throw new Error("Film ID is required");
-    }
+  //   if (!id) {
+  //     throw new Error("Film ID is required");
+  //   }
 
-    if (!admin_id) {
-      throw new Error("Admin ID is required");
-    }
+  //   if (!admin_id) {
+  //     throw new Error("Admin ID is required");
+  //   }
 
-    const filmData = { name, duration, admin_id };
+  //   const filmData = { name, duration, admin_id };
 
-    return await this.filmDao.update(id, filmData);
-  }
-  
+  //   return await this.filmDao.update(id, filmData);
+  // }
+
   async getFilmWithSessions(req) {
     try {
-        const { id } = req.params;
-        const { date, startTime, endTime } = req.query;
-        
-        if (!id) {
-            throw new Error("Film ID is required");
-        }
+      const { id } = req.params;
+      const { date, startTime, endTime } = req.query;
 
-        const filter = {};
+      if (!id) {
+        throw new Error("Film ID is required");
+      }
 
-        // Add date filter if provided
-        if (date) {
-            const filterDate = new Date(date);
-            filterDate.setHours(0, 0, 0, 0);
-            filter.date = filterDate;
-        }
+      const filter = {};
 
-        // Add time range filter if provided
-        if (startTime && endTime) {
-            filter.hour = {
-                $gte: startTime,
-                $lte: endTime
-            };
-        }
+      if (date) {
+        const filterDate = new Date(date);
+        filterDate.setHours(0, 0, 0, 0);
+        filter.date = filterDate;
+      }
 
-        const film = await this.filmDao.getFilmWithSessions(id, filter);
-        
-        if (!film) {
-            throw new Error("Film not found");
-        }
+      if (startTime && endTime) {
+        filter.hour = {
+          $gte: startTime,
+          $lte: endTime,
+        };
+      }
 
-        return film;
+      const film = await this.filmDao.getFilmWithSessions(id, filter);
+
+      if (!film) {
+        throw new Error("Film not found");
+      }
+
+      return film;
     } catch (error) {
-        throw new Error(`Error fetching film with sessions: ${error.message}`);
+      throw new Error(`Error fetching film with sessions: ${error.message}`);
     }
-}
+  }
 }
 
 module.exports = FilmRepository;

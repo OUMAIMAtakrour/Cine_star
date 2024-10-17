@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const filmSchema = new mongoose.Schema(
   {
@@ -13,6 +13,10 @@ const filmSchema = new mongoose.Schema(
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true,
+    },
+    image_path: {
+      type: String,
       required: true,
     },
   },

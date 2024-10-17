@@ -1,18 +1,19 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
-const cors = require("cors");  
+const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const filmRoutes = require("./routes/filmRoutes");
 const roomRoutes = require("./routes/roomRoutes");
 const sessionRoutes = require("./routes/sessionRoutes");
 const seatRoutes = require("./routes/seatRoutes");
 const reservationRoutes = require("./routes/reservationRoutes");
-const db = require("../src/config/database");
+const db = require("./config/database");  
 
 const app = express();
 const port = process.env.PORT || 8080;
 
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use(cors({
   origin: 'http://localhost:5173',  
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

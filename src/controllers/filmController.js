@@ -8,14 +8,17 @@ class FilmController {
 
     async store(req, res) {
         try {
-            const { name, duration } = req.body;
-            const admin_id = user.adminData._id;
-            const film = await this.filmService.store({name, duration, admin_id});
-            res.status(201).json(film);
+          const { name, duration } = req.body;
+          const image_path = req.file ? req.file.path : null;  
+          const user_id = req.user?._id;
+      
+          const film = await this.filmService.store({ name, duration }, user_id, image_path);
+          res.status(201).json(film);
         } catch (error) {
-            res.status(400).json({ error: error.message });
+          res.status(400).json({ error: error.message });
         }
-    }
+      }
+      
 
     async destroy(req, res) {
         try {
@@ -67,7 +70,6 @@ class FilmController {
 
             return res.status(200).json(film);
         } catch (error) {
-            // Check for specific error types
             if (error.message.includes("Film ID is required")) {
                 return res.status(400).json({ 
                     error: "Film ID is required" 
@@ -80,7 +82,6 @@ class FilmController {
                 });
             }
 
-            // Generic error handler
             return res.status(500).json({ 
                 error: `Error fetching film with sessions: ${error.message}` 
             });

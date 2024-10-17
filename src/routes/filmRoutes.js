@@ -2,14 +2,18 @@ const express = require("express");
 const filmController = require("../controllers/filmController");
 const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
+const upload = require("../config/imageConfig");
 const router = express.Router();
 
 router.post(
   "/create",
   authMiddleware,
   roleMiddleware(["admin"]),
+  upload.single('image'),  
   filmController.store.bind(filmController)
 );
+
+
 router.get("/", authMiddleware, filmController.index.bind(filmController));
 router.get('/:id/sessions', filmController.getFilmWithSessions.bind(filmController));
 router.get("/:id", filmController.show.bind(filmController));
