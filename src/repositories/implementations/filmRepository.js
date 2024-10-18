@@ -1,4 +1,4 @@
-const FilmInterface = require("./../../repositories/interfaces/filmInterface");
+  const FilmInterface = require("./../../repositories/interfaces/filmInterface");
 const FilmModel = require("./../../models/film");
 const FilmDao = require("./../../dao/filmDao");
 
@@ -12,23 +12,26 @@ class FilmRepository extends FilmInterface {
     return this.filmDao.index();
   }
 
-  async store(filmFields, user_id, image) {
+  async store(filmFields, user_id, imagePath, videoPath) {
     const { name, duration } = filmFields;
-    const _image = image;
-
-    const _user_id = user_id;
-
-    new FilmModel(name, duration, _user_id, _image);
-
-    const film = {
-      name: name,
-      duration: duration,
-      user_id: _user_id,
-      image_path: _image,
-    };
-
-    return await this.filmDao.save(film);
+    // if (!user_id) {
+    //   throw new Error("Admin not authenticated or admin data missing");
+    // }
+    try {
+      const film = new FilmModel({
+        name,
+        duration,
+        user_id,
+        image: imagePath,  
+        video: videoPath,  
+      });
+  
+      return await this.filmDao.save(film);  
+    } catch (error) {
+      throw new Error(`Failed to store film: ${error.message}`);
+    }
   }
+
 
   async destroy(req) {
     const { id } = req.params;
@@ -99,6 +102,31 @@ class FilmRepository extends FilmInterface {
       return film;
     } catch (error) {
       throw new Error(`Error fetching film with sessions: ${error.message}`);
+    }
+  }
+
+   async getMovie(req) {
+    try {
+      const { id } = req.params;
+
+      if (!id) {
+        throw new Error("Film ID is required");
+      }
+
+      const film = await this.filmDao.show(id);
+
+      if (!film) {
+        throw new Error("Film not found");
+      }
+
+      const videoUrl = await MinioService.getVideoUrl(film.video);
+
+      return {
+        ...film.toObject(),
+        videoUrl, 
+      };
+    } catch (error) {
+      throw new Error(`Error retrieving film: ${error.message}`);
     }
   }
 }

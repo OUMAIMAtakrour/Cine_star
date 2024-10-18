@@ -13,10 +13,14 @@ const filmSchema = new mongoose.Schema(
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: false,
+    },
+    image: {
+      type: String,
       required: true,
     },
-    image_path: {
-      type: String,
+    video: {
+      type: Object,
       required: true,
     },
   },

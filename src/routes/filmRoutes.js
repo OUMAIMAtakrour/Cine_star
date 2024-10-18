@@ -3,19 +3,36 @@ const filmController = require("../controllers/filmController");
 const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
 const upload = require("../config/imageConfig");
+const multer = require("multer");
+
 const router = express.Router();
 
-router.post(
-  "/create",
-  authMiddleware,
-  roleMiddleware(["admin"]),
-  upload.single('image'),  
-  filmController.store.bind(filmController)
-);
+// router.post(
+//   "/create",
+//   authMiddleware,
+//   roleMiddleware(["admin"]),
+//   upload.single('image'),
+//   filmController.store.bind(filmController)
+// );
+console.log("FilmController:", filmController);
+console.log("FilmController.store:", filmController.store);
 
+// router.post(
+//   "/create",
+//   upload.fields([
+//     { name: "image", maxCount: 1 },
+//     { name: "video", maxCount: 1 },
+//   ]),
+//   filmController.store.bind(filmController)
+// );
+
+router.post('/create', upload.fields([{ name: 'image' }, { name: 'video' }]), filmController.store.bind(filmController));
 
 router.get("/", authMiddleware, filmController.index.bind(filmController));
-router.get('/:id/sessions', filmController.getFilmWithSessions.bind(filmController));
+router.get(
+  "/:id/sessions",
+  filmController.getFilmWithSessions.bind(filmController)
+);
 router.get("/:id", filmController.show.bind(filmController));
 router.put(
   "/:id",
