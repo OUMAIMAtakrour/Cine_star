@@ -27,7 +27,7 @@ class CommentDao {
 
   async getCommentsByMovieId(movieId) {
     try {
-      return await Comment.find({ movieId }); // Fetch comments by movieId
+      return await Comment.find({ movieId }); 
     } catch (error) {
       throw new Error(`Error fetching comments: ${error.message}`);
     }

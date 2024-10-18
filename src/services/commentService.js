@@ -25,7 +25,7 @@ class CommentService {
     return this.commentRepository.update(req);
   }
   async getCommentsByMovieId(movieId) {
-    return this.commentRepository.getCommentsByMovieId(movieId); // Delegating to repository
+    return this.commentRepository.getCommentsByMovieId(movieId); 
   }
 }
 

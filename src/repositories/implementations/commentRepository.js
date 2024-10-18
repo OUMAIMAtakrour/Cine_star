@@ -14,11 +14,11 @@ class CommentRepository extends CommentInterface {
 
   async store(commentData) {
     const { movieId, content } = commentData.body;
-    
+
     if (!commentData.user || !commentData.user._id) {
-        throw new Error("Admin not authenticated or admin data missing");
-      }
-      const userId = commentData.user._id;
+      throw new Error("Admin not authenticated or admin data missing");
+    }
+    const userId = commentData.user._id;
     const createdAt = new Date();
 
     const commentObj = new CommentModel(
@@ -72,9 +72,8 @@ class CommentRepository extends CommentInterface {
     return await this.commentDao.update(id, commentData);
   }
 
-
   async getCommentsByMovieId(movieId) {
-    return this.commentDao.getCommentsByMovieId(movieId); // Delegating to DAO
+    return this.commentDao.getCommentsByMovieId(movieId); 
   }
 }
 
