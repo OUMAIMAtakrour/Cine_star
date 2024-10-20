@@ -1,12 +1,13 @@
 const FilmService = require("../services/filmService");
 const MinioService = require("../services/minioService");
+const filmRepository = require("../repositories/implementations/filmRepository");
 const fs = require("fs");
 
 class FilmController {
   constructor(filmService) {
     this.filmService = filmService;
+    this.minioService = new MinioService();
   }
-
 
   async show(req, res) {
     try {
@@ -21,45 +22,30 @@ class FilmController {
   }
   async store(req, res) {
     try {
-      console.log("Received body:", req.body);
-      console.log("Received files:", req.files);
-
       const { name, duration } = req.body;
-      const user_id = req.user?._id; 
-      if (!req.files || !req.files.image || !req.files.video) {
-        return res
-          .status(400)
-          .json({ error: "Both image and video files are required" });
-      }
-
       const imageFile = req.files.image[0];
       const videoFile = req.files.video[0];
 
-      const imagePath = await MinioService.uploadVideo(imageFile);
-      const videoPath = await MinioService.uploadVideo(videoFile);
+      const imagePath = imageFile
+        ? `http://127.0.0.1:9000/movies/posters/${imageFile.filename}`
+        : undefined;
+      const videoPath = videoFile
+        ? `http://127.0.0.1:9000/movies/videos/${videoFile.filename}`
+        : undefined;
 
-      console.log("Image URL:", imagePath);
-      console.log("Video URL:", videoPath);
+      console.log("Extracted paths:", { imagePath, videoPath });
 
-      if (!imagePath || !videoPath) {
-        throw new Error("Missing image or video URL");
-      }
-
-      const film = await this.filmService.store({
-        name,
-        duration: parseInt(duration, 10),
-        user_id,
+      const film = await filmRepository.store(
+        { name, duration },
+        undefined,
         imagePath,
         videoPath
-      });
-
-      fs.unlinkSync(imageFile.path);
-      fs.unlinkSync(videoFile.path);
+      );
 
       res.status(201).json(film);
     } catch (error) {
       console.error("Error in FilmController.store:", error);
-      res.status(400).json({ error: error.message });
+      res.status(500).json({ error: error.message });
     }
   }
 
@@ -93,8 +79,6 @@ class FilmController {
       res.status(500).json({ error: error.message });
     }
   }
-
- 
 
   async update(req, res) {
     try {
@@ -137,6 +121,7 @@ class FilmController {
 }
 
 const filmService = new FilmService();
+// const minioService = new MinioService();
 const filmController = new FilmController(filmService);
 
 module.exports = filmController;

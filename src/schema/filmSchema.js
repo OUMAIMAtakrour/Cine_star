@@ -1,31 +1,11 @@
 const mongoose = require("mongoose");
 
-const filmSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: true,
-    },
-    duration: {
-      type: Number,
-      required: true,
-    },
-    user_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: false,
-    },
-    image: {
-      type: String,
-      required: true,
-    },
-    video: {
-      type: Object,
-      required: true,
-    },
-  },
-  { collection: "films" }
-);
+const filmSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  duration: { type: Number, required: true },
+  image: { type: String, required: true },
+  video: { type: String, required: true },
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+});
 
-const Film = mongoose.model("Film", filmSchema);
-module.exports = Film;
+module.exports = mongoose.model("Film", filmSchema);

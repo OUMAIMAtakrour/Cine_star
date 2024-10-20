@@ -1,6 +1,7 @@
-  const FilmInterface = require("./../../repositories/interfaces/filmInterface");
+const FilmInterface = require("./../../repositories/interfaces/filmInterface");
 const FilmModel = require("./../../models/film");
 const FilmDao = require("./../../dao/filmDao");
+const MinioService = require("./../../services/minioService"); // Ensure MinioService is imported
 
 class FilmRepository extends FilmInterface {
   constructor() {
@@ -14,24 +15,27 @@ class FilmRepository extends FilmInterface {
 
   async store(filmFields, user_id, imagePath, videoPath) {
     const { name, duration } = filmFields;
-    // if (!user_id) {
-    //   throw new Error("Admin not authenticated or admin data missing");
-    // }
+
+    if (!name || !duration || !imagePath || !videoPath) {
+      throw new Error(
+        "Missing required fields: name, duration, image, or video"
+      );
+    }
+
     try {
       const film = new FilmModel({
         name,
         duration,
         user_id,
-        image: imagePath,  
-        video: videoPath,  
+        image: imagePath,
+        video: videoPath,
       });
-  
-      return await this.filmDao.save(film);  
+
+      return await this.filmDao.save(film);
     } catch (error) {
       throw new Error(`Failed to store film: ${error.message}`);
     }
   }
-
 
   async destroy(req) {
     const { id } = req.params;
@@ -51,24 +55,6 @@ class FilmRepository extends FilmInterface {
     return this.filmDao.show(id);
   }
 
-  // async update(req) {
-  //   const { id } = req.params;
-  //   const { name, duration } = req.body;
-  //   const admin_id = req.user.adminData._id;
-
-  //   if (!id) {
-  //     throw new Error("Film ID is required");
-  //   }
-
-  //   if (!admin_id) {
-  //     throw new Error("Admin ID is required");
-  //   }
-
-  //   const filmData = { name, duration, admin_id };
-
-  //   return await this.filmDao.update(id, filmData);
-  // }
-
   async getFilmWithSessions(req) {
     try {
       const { id } = req.params;
@@ -79,7 +65,6 @@ class FilmRepository extends FilmInterface {
       }
 
       const filter = {};
-
       if (date) {
         const filterDate = new Date(date);
         filterDate.setHours(0, 0, 0, 0);
@@ -94,7 +79,6 @@ class FilmRepository extends FilmInterface {
       }
 
       const film = await this.filmDao.getFilmWithSessions(id, filter);
-
       if (!film) {
         throw new Error("Film not found");
       }
@@ -105,7 +89,7 @@ class FilmRepository extends FilmInterface {
     }
   }
 
-   async getMovie(req) {
+  async getMovie(req) {
     try {
       const { id } = req.params;
 
@@ -114,7 +98,6 @@ class FilmRepository extends FilmInterface {
       }
 
       const film = await this.filmDao.show(id);
-
       if (!film) {
         throw new Error("Film not found");
       }
@@ -123,7 +106,7 @@ class FilmRepository extends FilmInterface {
 
       return {
         ...film.toObject(),
-        videoUrl, 
+        videoUrl,
       };
     } catch (error) {
       throw new Error(`Error retrieving film: ${error.message}`);

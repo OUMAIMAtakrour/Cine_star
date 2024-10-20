@@ -1,29 +1,14 @@
 const FilmRepository = require("../repositories/implementations/filmRepository");
-const Film = require('../models/film');
+const Film = require("../models/film");
 class FilmService {
   constructor() {
     this.filmRepository = new FilmRepository();
   }
 
   async store(filmData) {
-    if (!filmData.name || !filmData.duration || !filmData.imagePath || !filmData.videoPath) {
-      throw new Error("Missing required fields: name, duration, image, or video");
-    }
+    const { user_id, imagePath, videoPath, ...filmFields } = filmData;
 
-    const film = new Film({
-      name: filmData.name,
-      duration: filmData.duration,
-      user_id: filmData.user_id, 
-      image: filmData.imagePath, 
-      video: filmData.videoPath,
-    });
-
-    try {
-      const savedFilm = await this.filmRepository.store(film); 
-      return savedFilm;
-    } catch (error) {
-      throw new Error("Failed to store film: " + error.message);
-    }
+      return await this.filmRepository.store(filmFields, user_id, imagePath, videoPath);
   }
   destroy(req) {
     return this.filmRepository.destroy(req);
@@ -38,7 +23,7 @@ class FilmService {
   }
 
   update(req) {
-    return this.filmRepository.update(req); 
+    return this.filmRepository.update(req);
   }
 
   async getFilmWithSessions(req) {
