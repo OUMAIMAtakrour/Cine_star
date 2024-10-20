@@ -57,8 +57,8 @@ class CommentController {
 
   async getCommentsByMovieId(req, res) {
     try {
-      const { movieId } = req.params; // Get movieId from request parameters
-      const comments = await this.commentService.getCommentsByMovieId(movieId); // Call the service method
+      const { movieId } = req.params;
+      const comments = await this.commentService.getCommentsByMovieId(movieId); 
       if (!comments || comments.length === 0) {
         return res.status(404).json({ message: 'No comments found for this movie.' });
       }

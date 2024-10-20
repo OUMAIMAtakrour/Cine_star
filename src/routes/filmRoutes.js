@@ -2,8 +2,10 @@ const express = require("express");
 const filmController = require("../controllers/filmController");
 const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
-const uploads = require("../middleware/multer");
-const upload = require("../config/imageConfig");
+// const uploads = require("../middleware/multer");
+// const upload = require("../config/imageConfig");
+const path = require("path");
+
 const multer = require("multer");
 
 const router = express.Router();
@@ -27,14 +29,28 @@ console.log("FilmController.store:", filmController.store);
 //   filmController.store.bind(filmController)
 // );
 
-router.post(
-  "/create",
-  upload.fields([
-    { name: "image", maxCount: 1 },
-    { name: "video", maxCount: 1 },
-  ]),
-  filmController.store.bind(filmController)
-);
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  // limits: {
+  //   fileSize: 10 * 1024 * 1024, // 10MB limit
+  // },
+  fileFilter: (req, file, cb) => {
+    if (file.fieldname === "image") {
+      if (!file.mimetype.startsWith("image/")) {
+        return cb(new Error("Only image files are allowed!"), false);
+      }
+    } else if (file.fieldname === "video") {
+      if (!file.mimetype.startsWith("video/")) {
+        return cb(new Error("Only video files are allowed!"), false);
+      }
+    }
+    cb(null, true);
+  }
+});
+
+router.post('/create',authMiddleware, upload.fields([{ name: 'image' }, { name: 'video' }]), (req, res) => {
+  filmController.store(req, res);
+});
 router.get("/", authMiddleware, filmController.index.bind(filmController));
 router.get(
   "/:id/sessions",

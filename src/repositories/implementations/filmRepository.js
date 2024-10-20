@@ -1,7 +1,7 @@
-const FilmInterface = require("./../../repositories/interfaces/filmInterface");
-const FilmModel = require("./../../models/film");
-const FilmDao = require("./../../dao/filmDao");
-const MinioService = require("./../../services/minioService"); // Ensure MinioService is imported
+const FilmInterface = require("../interfaces/filmInterface");
+const FilmModel = require("../../models/film");
+const FilmDao = require("../../dao/filmDao");
+const MinioService = require("../../services/minioService"); 
 
 class FilmRepository extends FilmInterface {
   constructor() {
@@ -13,29 +13,53 @@ class FilmRepository extends FilmInterface {
     return this.filmDao.index();
   }
 
-  async store(filmFields, user_id, imagePath, videoPath) {
-    const { name, duration } = filmFields;
-
-    if (!name || !duration || !imagePath || !videoPath) {
-      throw new Error(
-        "Missing required fields: name, duration, image, or video"
-      );
-    }
-
+  async store(req) {
+    console.log('FilmRepository.store - Request Body:', req.body);
+    console.log('FilmRepository.store - Request Files:', req.files);
+    console.log('FilmRepository.store - User Object:', req.user);
+  
     try {
-      const film = new FilmModel({
+      if (!req.body) {
+        throw new Error('Request body is undefined');
+      }
+  
+      const { name, duration } = req.body;
+      const user_id = req.user?._id;
+  
+      if (!user_id) {
+        throw new Error('Authentication required');
+      }
+  
+      if (!name || !duration) {
+        throw new Error('Missing required fields: name or duration');
+      }
+  
+      const imageFile = req.files?.image?.[0];
+      const videoFile = req.files?.video?.[0];
+  
+      if (!imageFile || !videoFile) {
+        throw new Error('Missing required files: image or video');
+      }
+  
+      const image = await MinioService.uploadFile(imageFile, 'movies');
+      const video = await MinioService.uploadFile(videoFile, 'movies');
+  
+      const filmData = {
         name,
-        duration,
+        duration: parseInt(duration),
+        image,
+        video,
         user_id,
-        image: imagePath,
-        video: videoPath,
-      });
-
-      return await this.filmDao.save(film);
+      };
+  
+      const film = await this.filmDao.store(filmData);
+      return film;
     } catch (error) {
-      throw new Error(`Failed to store film: ${error.message}`);
+      console.error('Error in FilmRepository.store:', error);
+      throw new Error(`Error storing film: ${error.message}`);
     }
   }
+
 
   async destroy(req) {
     const { id } = req.params;

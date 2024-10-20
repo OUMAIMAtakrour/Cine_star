@@ -22,7 +22,10 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-
+app.use((err, req, res, next) => {
+  console.error('Global error handler caught an error:', err);
+  res.status(500).json({ error: 'An unexpected error occurred' });
+});
 app.use(express.json());
 
 app.listen(port, () => {

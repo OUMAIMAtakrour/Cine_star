@@ -5,10 +5,12 @@ class FilmService {
     this.filmRepository = new FilmRepository();
   }
 
-  async store(filmData) {
-    const { user_id, imagePath, videoPath, ...filmFields } = filmData;
-
-      return await this.filmRepository.store(filmFields, user_id, imagePath, videoPath);
+  async store(req) {
+    try {
+      return await this.filmRepository.store(req);
+    } catch (error) {
+      throw new Error(`Error in FilmService.store: ${error.message}`);
+    }
   }
   destroy(req) {
     return this.filmRepository.destroy(req);

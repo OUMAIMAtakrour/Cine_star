@@ -1,11 +1,12 @@
 const Film = require("../schema/filmSchema");
+const FilmModel=require("../models/film")
 
 const mongoose = require('mongoose');
 
 
 class FilmDao{
-    save(film){
-        return Film.create(film)
+    async store(filmData) {
+        return Film.create(filmData);
     }
 
     delete(id) {

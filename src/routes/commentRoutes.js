@@ -3,7 +3,7 @@ const commentController = require("../controllers/commentController");
 const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
 const Comment = require("../models/Comment");
-const upload = require("../config/imageConfig");
+// const upload = require("../config/imageConfig");
 const multer = require("multer");
 
 const router = express.Router();

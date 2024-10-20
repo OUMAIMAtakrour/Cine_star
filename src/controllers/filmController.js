@@ -2,11 +2,12 @@ const FilmService = require("../services/filmService");
 const MinioService = require("../services/minioService");
 const filmRepository = require("../repositories/implementations/filmRepository");
 const fs = require("fs");
+const path = require("path");
+
 
 class FilmController {
   constructor(filmService) {
     this.filmService = filmService;
-    this.minioService = new MinioService();
   }
 
   async show(req, res) {
@@ -21,40 +22,30 @@ class FilmController {
     }
   }
   async store(req, res) {
+    console.log('Request Body:', req.body);
+    console.log('Request Files:', req.files);
+    console.log('User Object:', req.user);
+  
     try {
-      const { name, duration } = req.body;
-      const imageFile = req.files.image[0];
-      const videoFile = req.files.video[0];
-
-      const imagePath = imageFile
-        ? `http://127.0.0.1:9000/movies/posters/${imageFile.filename}`
-        : undefined;
-      const videoPath = videoFile
-        ? `http://127.0.0.1:9000/movies/videos/${videoFile.filename}`
-        : undefined;
-
-      console.log("Extracted paths:", { imagePath, videoPath });
-
-      const film = await filmRepository.store(
-        { name, duration },
-        undefined,
-        imagePath,
-        videoPath
-      );
-
-      res.status(201).json(film);
+      const film = await this.filmService.store(req);
+      
+      res.status(201).json({ 
+        message: 'Film created successfully', 
+        film
+      });
     } catch (error) {
-      console.error("Error in FilmController.store:", error);
-      res.status(500).json({ error: error.message });
+      console.error('Error in FilmController.store:', error);
+      res.status(400).json({ message: error.message });
     }
   }
-
+  
+  
   async destroy(req, res) {
     try {
       const film = await this.filmService.destroy(req);
-      return res.status(200).json({ message: "Film deleted successfully" });
+      return res.json({ message: "Film deleted successfully" });
     } catch (error) {
-      return res.status(400).json({ error: error.message });
+      return res.json({ error: error.message });
     }
   }
 
