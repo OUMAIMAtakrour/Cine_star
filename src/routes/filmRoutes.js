@@ -52,6 +52,7 @@ router.post('/create',authMiddleware, upload.fields([{ name: 'image' }, { name: 
   filmController.store(req, res);
 });
 router.get("/", authMiddleware, filmController.index.bind(filmController));
+router.get("/all", authMiddleware, filmController.getAllFilms.bind(filmController));
 router.get(
   "/:id/sessions",
   filmController.getFilmWithSessions.bind(filmController)

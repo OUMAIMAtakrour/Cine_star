@@ -37,11 +37,13 @@ class MinioService {
   
   
 
-  async getFileUrl(bucketName, fileName) {
+  static async getFileUrl(filename, bucketName) {
     try {
-      return await this.minioClient.presignedGetObject(bucketName, fileName, 24 * 60 * 60);
+      const url = await minioClient.presignedGetObject(bucketName, filename, 24 * 60 * 60); // URL valid for 24 hours
+      return url;
     } catch (error) {
-      throw new Error(`Failed to get file URL: ${error.message}`);
+      console.error('Error generating pre-signed URL:', error);
+      return null;
     }
   }
 }

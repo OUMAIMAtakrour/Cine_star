@@ -7,6 +7,7 @@ class FilmRepository extends FilmInterface {
   constructor() {
     super();
     this.filmDao = new FilmDao();
+    this.bucketName = 'movies';
   }
 
   index() {
@@ -113,7 +114,7 @@ class FilmRepository extends FilmInterface {
     }
   }
 
-  async getMovie(req) {
+  async getAllMovies(req) {
     try {
       const { id } = req.params;
 
@@ -134,6 +135,45 @@ class FilmRepository extends FilmInterface {
       };
     } catch (error) {
       throw new Error(`Error retrieving film: ${error.message}`);
+    }
+  }
+  async getAllFilms() {
+    try {
+      const films = await this.filmDao.index();
+      
+      const filmsWithUrls = await Promise.all(films.map(async (film) => {
+        let imageUrl = null;
+        let videoUrl = null;
+        
+        try {
+          if (film.image) {
+            imageUrl = await MinioService.getFileUrl(film.image, this.bucketName);
+          }
+        } catch (error) {
+          console.error(`Error getting image URL for film ${film._id}:`, error);
+        }
+
+        try {
+          if (film.video) {
+            videoUrl = await MinioService.getFileUrl(film.video, this.bucketName);
+          }
+        } catch (error) {
+          console.error(`Error getting video URL for film ${film._id}:`, error);
+        }
+
+        return {
+          ...film.toObject(),
+          image: imageUrl || film.image, 
+          video: videoUrl || film.video, 
+          imageUrl, 
+          videoUrl,
+        };
+      }));
+
+      return filmsWithUrls;
+    } catch (error) {
+      console.error('Error in FilmRepository.getAllFilms:', error);
+      throw new Error(`Error fetching all films: ${error.message}`);
     }
   }
 }

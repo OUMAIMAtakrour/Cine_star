@@ -4,7 +4,6 @@ const filmRepository = require("../repositories/implementations/filmRepository")
 const fs = require("fs");
 const path = require("path");
 
-
 class FilmController {
   constructor(filmService) {
     this.filmService = filmService;
@@ -22,24 +21,23 @@ class FilmController {
     }
   }
   async store(req, res) {
-    console.log('Request Body:', req.body);
-    console.log('Request Files:', req.files);
-    console.log('User Object:', req.user);
-  
+    console.log("Request Body:", req.body);
+    console.log("Request Files:", req.files);
+    console.log("User Object:", req.user);
+
     try {
       const film = await this.filmService.store(req);
-      
-      res.status(201).json({ 
-        message: 'Film created successfully', 
-        film
+
+      res.status(201).json({
+        message: "Film created successfully",
+        film,
       });
     } catch (error) {
-      console.error('Error in FilmController.store:', error);
+      console.error("Error in FilmController.store:", error);
       res.status(400).json({ message: error.message });
     }
   }
-  
-  
+
   async destroy(req, res) {
     try {
       const film = await this.filmService.destroy(req);
@@ -109,10 +107,42 @@ class FilmController {
       });
     }
   }
+  async getAllFilms(req, res) {
+    try {
+      const films = await this.filmService.getAllFilms();
+
+      const filmsWithUrls = await Promise.all(
+        films.map(async (film) => {
+          let imageUrl = null;
+          let videoUrl = null;
+          try {
+            if (film.image) {
+              imageUrl = await MinioService.getFileUrl(film.image);
+            }
+            if (film.video) {
+              videoUrl = await MinioService.getFileUrl(film.video);
+            }
+          } catch (error) {
+            console.error(`Error getting URL for film ${film._id}:`, error);
+            
+          }
+          return {
+            ...film,
+            imageUrl,
+            videoUrl,
+          };
+        })
+      );
+
+      res.status(200).json(filmsWithUrls);
+    } catch (error) {
+      console.error('Error in FilmController.getAllFilms:', error);
+      res.status(500).json({ message: "An error occurred while fetching films" });
+    }
+  }
 }
 
 const filmService = new FilmService();
-// const minioService = new MinioService();
 const filmController = new FilmController(filmService);
 
 module.exports = filmController;

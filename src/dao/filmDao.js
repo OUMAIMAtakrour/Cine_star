@@ -83,6 +83,10 @@ class FilmDao{
             }
         ]).then(results => results[0] || null);
     }
+
+    async getAllFilms() {
+        return Film.find().lean();
+    }
 }
 
 module.exports = FilmDao;

@@ -27,9 +27,11 @@ class FilmService {
   update(req) {
     return this.filmRepository.update(req);
   }
-
   async getFilmWithSessions(req) {
     return this.filmRepository.getFilmWithSessions(req);
+  }
+  async getAllFilms() {
+    return this.filmRepository.getAllFilms();
   }
 }
 module.exports = FilmService;
