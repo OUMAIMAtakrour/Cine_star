@@ -124,7 +124,6 @@ class FilmController {
             }
           } catch (error) {
             console.error(`Error getting URL for film ${film._id}:`, error);
-            
           }
           return {
             ...film,
@@ -136,11 +135,50 @@ class FilmController {
 
       res.status(200).json(filmsWithUrls);
     } catch (error) {
-      console.error('Error in FilmController.getAllFilms:', error);
-      res.status(500).json({ message: "An error occurred while fetching films" });
+      console.error("Error in FilmController.getAllFilms:", error);
+      res
+        .status(500)
+        .json({ message: "An error occurred while fetching films" });
+    }
+  }
+
+
+  async addRating(req, res) {
+    try {
+      const { filmId } = req.params;
+      const { score, comment } = req.body;
+      const userId = req.user._id;
+
+      if (!score || score < 1 || score > 5) {
+        return res.status(400).json({ 
+          error: "Invalid rating score. Must be between 1 and 5." 
+        });
+      }
+
+      const film = await this.filmService.addRating(filmId, userId, score, comment);
+      
+      return res.status(200).json({
+        message: "Rating added successfully",
+        averageRating: film.averageRating,
+        totalRatings: film.totalRatings
+      });
+    } catch (error) {
+      return res.status(400).json({ error: error.message });
+    }
+  }
+
+  async getFilmRatings(req, res) {
+    try {
+      const { filmId } = req.params;
+      const ratings = await this.filmService.getFilmRatings(filmId);
+      return res.status(200).json(ratings);
+    } catch (error) {
+      return res.status(400).json({ error: error.message });
     }
   }
 }
+
+
 
 const filmService = new FilmService();
 const filmController = new FilmController(filmService);

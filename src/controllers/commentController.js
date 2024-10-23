@@ -17,9 +17,7 @@ class CommentController {
   async destroy(req, res) {
     try {
       await this.commentService.destroy(req);
-      return res
-        .status(200)
-        .json({ message: "Comment deleted successfully" });
+      return res.status(200).json({ message: "Comment deleted successfully" });
     } catch (error) {
       return res.status(400).json({ error: error.message });
     }
@@ -58,9 +56,11 @@ class CommentController {
   async getCommentsByMovieId(req, res) {
     try {
       const { movieId } = req.params;
-      const comments = await this.commentService.getCommentsByMovieId(movieId); 
+      const comments = await this.commentService.getCommentsByMovieId(movieId);
       if (!comments || comments.length === 0) {
-        return res.status(404).json({ message: 'No comments found for this movie.' });
+        return res
+          .status(200)
+          .json({ message: "No comments found for this movie." });
       }
       return res.status(200).json(comments);
     } catch (error) {

@@ -29,5 +29,24 @@ class FilmInterface{
     getFilmWithSessions(req) {
         throw new Error('Must be Implemented!!');
     }
+    addRating(filmId, userId, score, comment) {
+        throw new Error('Must be Implemented!!');
+    }
+
+    getFilmRatings(filmId) {
+        throw new Error('Must be Implemented!!');
+    }
+
+    updateRating(filmId, userId, score, comment) {
+        throw new Error('Must be Implemented!!');
+    }
+
+    deleteRating(filmId, userId) {
+        throw new Error('Must be Implemented!!');
+    }
+
+    getUserFilmRating(filmId, userId) {
+        throw new Error('Must be Implemented!!');
+    }
 }
 module.exports = FilmInterface;

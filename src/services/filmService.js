@@ -33,5 +33,20 @@ class FilmService {
   async getAllFilms() {
     return this.filmRepository.getAllFilms();
   }
+  async addRating(filmId, userId, score, comment) {
+    try {
+        return await this.filmRepository.addRating(filmId, userId, score, comment);
+    } catch (error) {
+        throw new Error(`Error in FilmService.addRating: ${error.message}`);
+    }
+}
+
+async getFilmRatings(filmId) {
+    try {
+        return await this.filmRepository.getFilmRatings(filmId);
+    } catch (error) {
+        throw new Error(`Error in FilmService.getFilmRatings: ${error.message}`);
+    }
+}
 }
 module.exports = FilmService;

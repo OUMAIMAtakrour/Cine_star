@@ -29,7 +29,7 @@ console.log("FilmController.store:", filmController.store);
 //   filmController.store.bind(filmController)
 // );
 
-const upload = multer({ 
+const upload = multer({
   storage: multer.memoryStorage(),
   // limits: {
   //   fileSize: 10 * 1024 * 1024, // 10MB limit
@@ -45,14 +45,23 @@ const upload = multer({
       }
     }
     cb(null, true);
-  }
+  },
 });
 
-router.post('/create',authMiddleware, upload.fields([{ name: 'image' }, { name: 'video' }]), (req, res) => {
-  filmController.store(req, res);
-});
+router.post(
+  "/create",
+  authMiddleware,
+  upload.fields([{ name: "image" }, { name: "video" }]),
+  (req, res) => {
+    filmController.store(req, res);
+  }
+);
 router.get("/", authMiddleware, filmController.index.bind(filmController));
-router.get("/all", authMiddleware, filmController.getAllFilms.bind(filmController));
+router.get(
+  "/all",
+  authMiddleware,
+  filmController.getAllFilms.bind(filmController)
+);
 router.get(
   "/:id/sessions",
   filmController.getFilmWithSessions.bind(filmController)
@@ -71,4 +80,7 @@ router.delete(
   filmController.destroy.bind(filmController)
 );
 
+
+router.post('/:filmId/ratings', authMiddleware, filmController.addRating.bind(filmController));
+router.get('/:filmId/ratings', filmController.getFilmRatings.bind(filmController));
 module.exports = router;
