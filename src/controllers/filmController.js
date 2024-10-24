@@ -71,8 +71,8 @@ class FilmController {
 
   async update(req, res) {
     try {
-      const film = await this.filmService.update(req);
-      return res.json(film);
+      const updatedFilm = await this.filmService.update(req);
+      return res.json(updatedFilm);
     } catch (error) {
       return res.status(400).json({ error: error.message });
     }
@@ -142,7 +142,6 @@ class FilmController {
     }
   }
 
-
   async addRating(req, res) {
     try {
       const { filmId } = req.params;
@@ -150,17 +149,22 @@ class FilmController {
       const userId = req.user._id;
 
       if (!score || score < 1 || score > 5) {
-        return res.status(400).json({ 
-          error: "Invalid rating score. Must be between 1 and 5." 
+        return res.status(400).json({
+          error: "Invalid rating score. Must be between 1 and 5.",
         });
       }
 
-      const film = await this.filmService.addRating(filmId, userId, score, comment);
-      
+      const film = await this.filmService.addRating(
+        filmId,
+        userId,
+        score,
+        comment
+      );
+
       return res.status(200).json({
         message: "Rating added successfully",
         averageRating: film.averageRating,
-        totalRatings: film.totalRatings
+        totalRatings: film.totalRatings,
       });
     } catch (error) {
       return res.status(400).json({ error: error.message });
@@ -177,8 +181,6 @@ class FilmController {
     }
   }
 }
-
-
 
 const filmService = new FilmService();
 const filmController = new FilmController(filmService);

@@ -255,6 +255,56 @@ class FilmRepository extends FilmInterface {
       throw new Error(`Error deleting rating: ${error.message}`);
     }
   }
+  async update(req) {
+    const { id } = req.params; 
+    const { name, duration } = req.body;
+    const userId = req.user._id;
+  
+    if (!id) {
+      throw new Error("Film ID is required");
+    }
+  
+    try {
+      const existingFilm = await this.filmDao.show(id); 
+      if (!existingFilm) {
+        throw new Error("Film not found");
+      }
+  
+      const updateData = {}; 
+  
+      if (name) {
+        updateData.name = name;
+      }
+      if (duration) {
+        updateData.duration = parseInt(duration);
+      }
+  
+      if (req.files?.image?.[0]) {
+        const imageFile = req.files.image[0];
+        const image = await MinioService.uploadFile(imageFile, this.bucketName);
+        updateData.image = image;
+      }
+      
+      if (req.files?.video?.[0]) {
+        const videoFile = req.files.video[0];
+        const video = await MinioService.uploadFile(videoFile, this.bucketName);
+        updateData.video = video;
+      }
+  
+      const updatedFilm = await this.filmDao.update(id, updateData);
+  
+      if (updatedFilm.modifiedCount === 0) {
+        return existingFilm;
+      }
+  
+      return updatedFilm;
+    } catch (error) {
+      console.error("Error in FilmRepository.update:", error);
+      throw new Error(`Error updating film: ${error.message}`);
+    }
+  }
+  
+  
 }
 
 module.exports = FilmRepository;
