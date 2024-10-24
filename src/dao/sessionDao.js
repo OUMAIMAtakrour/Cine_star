@@ -17,11 +17,26 @@ class SessionDao {
   show(id) {
     return Session.findOne({ _id: id }).populate("film_id").populate("room_id");
   }
-
+  
   update(id, sessionData) {
-    return Session.findByIdAndUpdate(id, sessionData, { new: true })
-      .populate("film_id")
-      .populate("room_id");
+    return Session.findByIdAndUpdate(
+      id,
+      { $set: sessionData },
+      { 
+        new: true,
+        runValidators: true 
+      }
+    ).populate("film_id").populate("room_id");
+  }
+  async updateSeats(sessionId, seats) {
+    return Session.findByIdAndUpdate(
+      sessionId,
+      { $set: { seats: seats } },
+      { 
+        new: true,
+        runValidators: true 
+      }
+    ).populate("film_id").populate("room_id");
   }
 }
 

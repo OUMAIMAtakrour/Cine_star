@@ -13,8 +13,13 @@ class SessionRepository extends SessionInterface {
   index() {
     return this.sessionDao.index();
   }
+
   async store(sessionData) {
     const { film_id, room_id, hour, date } = sessionData.body;
+    
+    if (!film_id || !room_id || !hour || !date) {
+      throw new Error("Missing required fields: film_id, room_id, hour, and date are required");
+    }
 
     if (!sessionData.user || !sessionData.user._id) {
       throw new Error("Admin not authenticated or admin data missing");
@@ -22,36 +27,47 @@ class SessionRepository extends SessionInterface {
 
     const user_id = sessionData.user._id;
 
+    const validHours = ["10:00", "13:00", "16:00", "19:00", "22:00"];
+    if (!validHours.includes(hour)) {
+      throw new Error(`Invalid hour. Must be one of: ${validHours.join(', ')}`);
+    }
+
     const room = await this.roomDao.show(room_id);
     if (!room) {
       throw new Error("Room not found");
     }
 
-    const seats = Array.from({ length: room.capacity }, (_, index) => ({
-      seat_number: index + 1,
-      status: "Available",
-    }));
+    const SEATS_PER_ROW = 10;
+    const seats = [];
+    
+    const totalRows = Math.ceil(room.capacity / SEATS_PER_ROW);
+    let remainingSeats = room.capacity;
+    
+    for (let rowIndex = 0; rowIndex < totalRows; rowIndex++) {
+      const rowLetter = String.fromCharCode(65 + rowIndex);
+      const seatsInThisRow = Math.min(SEATS_PER_ROW, remainingSeats);
+      
+      for (let seatNum = 1; seatNum <= seatsInThisRow; seatNum++) {
+        seats.push({
+          row: rowLetter,
+          number: seatNum,
+          status: "Available"
+        });
+      }
+      
+      remainingSeats -= seatsInThisRow;
+    }
 
-    const sessionObj = new SessionModel(
-      null,
-      film_id,
-      room_id,
-      user_id,
-      hour,
-      new Date(date),
-      seats
-    );
-
-    const session = {
-      film_id: sessionObj.getFilmId(),
-      room_id: sessionObj.getRoomId(),
-      user_id: sessionObj.getUserId(),
-      hour: sessionObj.getHour(),
-      date: sessionObj.getDate(),
-      seats: sessionObj.getSeats(),
+    const sessionObj = {
+      film_id: film_id,
+      room_id: room_id,
+      user_id: user_id,
+      hour: hour,
+      date: new Date(date),
+      seats: seats
     };
 
-    return await this.sessionDao.save(session);
+    return await this.sessionDao.save(sessionObj);
   }
 
   async destroy(req) {
@@ -80,23 +96,24 @@ class SessionRepository extends SessionInterface {
       throw new Error("Admin not authenticated or admin data missing");
     }
 
-    const admin_id = updatedSession.user._id;
-
     if (!id) {
       throw new Error("Session ID is required");
     }
 
-    const sessionData = new SessionModel(
-      id,
-      film_id,
-      room_id,
-      admin_id,
-      hour,
-      new Date(date),
-      seats
-    );
+    if (!film_id || !room_id || !hour || !date) {
+      throw new Error("Missing required fields: film_id, room_id, hour, and date are required");
+    }
 
-    return await this.sessionDao.update(id, sessionData);
+    const sessionObj = {
+      film_id: film_id,
+      room_id: room_id,
+      user_id: updatedSession.user._id,
+      hour: hour,
+      date: new Date(date),
+      seats: seats
+    };
+
+    return await this.sessionDao.update(id, sessionObj);
   }
 }
 

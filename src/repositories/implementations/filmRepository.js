@@ -192,67 +192,69 @@ class FilmRepository extends FilmInterface {
   // }
   async addRating(filmId, userId, score, comment) {
     try {
-        const ratingData = {
-            user_id: userId,
-            score,
-            comment,
-            createdAt: new Date()
-        };
+      const ratingData = {
+        user_id: userId,
+        score,
+        comment,
+        createdAt: new Date(),
+      };
 
-        const film = await this.filmDao.show(filmId);
-        if (!film) {
-            throw new Error("Film not found");
-        }
+      const film = await this.filmDao.show(filmId);
+      if (!film) {
+        throw new Error("Film not found");
+      }
 
-        const existingRating = film.ratings?.find(
-            rating => rating.user_id.toString() === userId.toString()
+      const existingRating = film.ratings?.find(
+        (rating) => rating.user_id.toString() === userId.toString()
+      );
+
+      let updatedFilm;
+      if (existingRating) {
+        updatedFilm = await this.filmDao.updateRating(
+          filmId,
+          userId,
+          ratingData
         );
+      } else {
+        updatedFilm = await this.filmDao.addRating(filmId, ratingData);
+      }
 
-        let updatedFilm;
-        if (existingRating) {
-            updatedFilm = await this.filmDao.updateRating(filmId, userId, ratingData);
-        } else {
-            updatedFilm = await this.filmDao.addRating(filmId, ratingData);
-        }
-
-        return await this.filmDao.updateAverageRating(filmId);
+      return await this.filmDao.updateAverageRating(filmId);
     } catch (error) {
-        throw new Error(`Error adding rating: ${error.message}`);
+      throw new Error(`Error adding rating: ${error.message}`);
     }
-}
+  }
 
-async getFilmRatings(filmId) {
+  async getFilmRatings(filmId) {
     try {
-        const film = await this.filmDao.getFilmRatings(filmId);
-        if (!film) {
-            throw new Error("Film not found");
-        }
+      const film = await this.filmDao.getFilmRatings(filmId);
+      if (!film) {
+        throw new Error("Film not found");
+      }
 
-        return {
-            filmId: film._id,
-            averageRating: film.averageRating,
-            totalRatings: film.totalRatings,
-            ratings: film.ratings
-        };
+      return {
+        filmId: film._id,
+        averageRating: film.averageRating,
+        totalRatings: film.totalRatings,
+        ratings: film.ratings,
+      };
     } catch (error) {
-        throw new Error(`Error getting film ratings: ${error.message}`);
+      throw new Error(`Error getting film ratings: ${error.message}`);
     }
-}
+  }
 
-async deleteRating(filmId, userId) {
+  async deleteRating(filmId, userId) {
     try {
-        const film = await this.filmDao.deleteRating(filmId, userId);
-        if (!film) {
-            throw new Error("Film or rating not found");
-        }
+      const film = await this.filmDao.deleteRating(filmId, userId);
+      if (!film) {
+        throw new Error("Film or rating not found");
+      }
 
-        return await this.filmDao.updateAverageRating(filmId);
+      return await this.filmDao.updateAverageRating(filmId);
     } catch (error) {
-        throw new Error(`Error deleting rating: ${error.message}`);
+      throw new Error(`Error deleting rating: ${error.message}`);
     }
+  }
 }
-}
-
-
 
 module.exports = FilmRepository;

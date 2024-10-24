@@ -1,8 +1,8 @@
 class Reservation {
-  constructor(id, clientId, seatIds, sessionId) {
+  constructor(id, clientId, seats, sessionId) {
     this.id = id;
     this.clientId = clientId;
-    this.seatIds = seatIds;
+    this.seats = seats;
     this.sessionId = sessionId;
   }
 
@@ -11,7 +11,7 @@ class Reservation {
   }
 
   getSeatIds() {
-    return this.seatIds;
+    return this.seats;
   }
 
   getSessionId() {

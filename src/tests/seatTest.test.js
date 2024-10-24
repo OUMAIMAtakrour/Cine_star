@@ -26,7 +26,7 @@ describe("SeatRepository Tests", () => {
 
     seatDaoMock.index.mockResolvedValue(mockSeats);
 
-    const seats = await seatRepository.index();
+    const seats = await seatRepository.index();l
 
     expect(seats).toBeInstanceOf(Array); 
     expect(seats).toEqual(mockSeats); 

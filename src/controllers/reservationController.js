@@ -7,7 +7,7 @@ class ReservationController {
 
   async store(req, res) {
     try {
-      if (!Array.isArray(req.body.seatIds)) {
+      if (!Array.isArray(req.body.seats)) {
         return res.status(400).json({ error: "seatIds must be an array" });
       }
 
